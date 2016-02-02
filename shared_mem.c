@@ -7,6 +7,7 @@
 #include <sys/wait.h>
 #include <pthread.h>
 
+#define LATENCY_RUNS 10
 #define MAX_MEM (512 * 1024)
 #define die(msg)     \
     do {             \
@@ -37,17 +38,20 @@ void child(struct shmem_map *pmap, int tput, int size, size_t region_size) {
     }
 
     if (tput == 0) {
-        pthread_mutex_lock(&pmap->mutex);
-        while (pmap->count == 0) {
-            pthread_cond_wait(&pmap->fill, &pmap->mutex);
+        int i;
+        for (i = 0; i < LATENCY_RUNS; i++) {
+            pthread_mutex_lock(&pmap->mutex);
+            while (pmap->count == 0) {
+                pthread_cond_wait(&pmap->fill, &pmap->mutex);
+            }
+
+            memcpy(buffer, &pmap->data[0] + (pmap->consumed * size), size);
+            pmap->consumed = (pmap->consumed + 1) % max_count;
+            pmap->count--;
+
+            pthread_cond_signal(&pmap->empty);
+            pthread_mutex_unlock(&pmap->mutex);
         }
-
-        memcpy(buffer, &pmap->data[0] + (pmap->consumed * size), size);
-        pmap->consumed = (pmap->consumed + 1) % max_count;
-        pmap->count--;
-
-        pthread_cond_signal(&pmap->empty);
-        pthread_mutex_unlock(&pmap->mutex);
     } else {
         // TPUT test, we will receive atleast a 100MB of data
         int num_pkts = (100 * 1024 * 1024) / size;
@@ -80,17 +84,20 @@ void parent(struct shmem_map *pmap, int tput, int size, size_t region_size) {
     }
 
     if (tput == 0) {
-        pthread_mutex_lock(&pmap->mutex);
-        while (pmap->count == max_count) {
-            pthread_cond_wait(&pmap->empty, &pmap->mutex);
+        int i;
+        for (i = 0; i < LATENCY_RUNS; i++) {
+            pthread_mutex_lock(&pmap->mutex);
+            while (pmap->count == max_count) {
+                pthread_cond_wait(&pmap->empty, &pmap->mutex);
+            }
+
+            memcpy(&pmap->data[0] + (pmap->produced * size), buffer, size);
+            pmap->produced = (pmap->produced + 1) % max_count;
+            pmap->count++;
+
+            pthread_cond_signal(&pmap->fill);
+            pthread_mutex_unlock(&pmap->mutex);
         }
-
-        memcpy(&pmap->data[0] + (pmap->produced * size), buffer, size);
-        pmap->produced = (pmap->produced + 1) % max_count;
-        pmap->count++;
-
-        pthread_cond_signal(&pmap->fill);
-        pthread_mutex_unlock(&pmap->mutex);
     } else {
         // TPUT test, we will send atleast a 100MB of data
         int num_pkts = (100 * 1024 * 1024) / size;
