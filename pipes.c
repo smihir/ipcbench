@@ -32,6 +32,25 @@ void parent(int *fd, int *fd1, int size, int tput) {
 
         if (ret == -1)
             perror("Error in receiving packets");
+    } else {
+        // TPUT test, we will receive atleast a 100MB of data
+        int num_pkts = (100 * 1024 * 1024) / size;
+        // avoid errors due to remainder
+        int tot_size = num_pkts * size;
+        ssize_t r = 0, ret;
+
+        // naive receive...
+        while ((ret = read(fd[0], buffer, size)) > 0) {
+            r += ret;
+            if (r == tot_size) {
+                write(fd1[1], (void *)buffer, 1);
+                break;
+            }
+        }
+
+        if (ret == -1) {
+            die("Error in receiving packets");
+        }
     }
     wait(&info);
     free(buffer);
@@ -56,6 +75,26 @@ void child(int *fd, int *fd1, int size, int tput) {
             if (r == size) {
                 break;
             }
+        }
+    } else {
+        // TPUT test, send atleast a 100MB of data
+        int num_pkts = (100 * 1024 * 1024) / size;
+        int i = 0;
+        ssize_t ret;
+
+        for (i = 0; i < num_pkts; i++) {
+            if (write(fd[1], (void *)buffer, size) == -1) {
+                die("Send error in child");
+            }
+        }
+
+        // receive ack
+        if ((ret = read(fd1[0], buffer, size)) > 0) {
+            // calculate timings
+        }
+
+        if (ret == -1) {
+            die("Child: Error in receiving ack");
         }
     }
     free(buffer);
