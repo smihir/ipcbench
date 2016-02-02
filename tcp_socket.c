@@ -12,6 +12,7 @@
 
 #define BACKLOG 50
 #define DEFAULT_PORT 9000
+#define LATENCY_RUNS 10
 
 #define die(msg)     \
     do {             \
@@ -80,20 +81,24 @@ void parent(int port, unsigned long int bufsize, int tput) {
     }
 
     if (tput == 0) {
-        ssize_t r = 0, ret;
-        // maybe do buffer + r and bufsize -r here...
-        while ((ret = recv(confd, buffer, bufsize, 0)) > 0) {
-            r += ret;
-            if (r == bufsize) {
-                send(confd, (void *)buffer, bufsize, 0);
-                break;
-            }
-        }
+        int i;
 
-        if (ret == -1) {
-            perror("Error in receiving packets");
-        } else if (ret == 0) {
-            printf("Remote connection closed\n");
+        for (i = 0; i < LATENCY_RUNS; i++) {
+            ssize_t r = 0, ret;
+            // maybe do buffer + r and bufsize -r here...
+            while ((ret = recv(confd, buffer, bufsize, 0)) > 0) {
+                r += ret;
+                if (r == bufsize) {
+                    send(confd, (void *)buffer, bufsize, 0);
+                    break;
+                }
+            }
+
+            if (ret == -1) {
+                perror("Error in receiving packets");
+            } else if (ret == 0) {
+                printf("Remote connection closed\n");
+            }
         }
     } else {
         // TPUT test, we will receive atleast a 100MB of data
@@ -140,7 +145,6 @@ void child(int port, unsigned long int bufsize, int tput) {
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_STREAM;
-    printf("port is %s\n", s_port);
 
     if ((status = getaddrinfo("localhost", s_port, &hints, &res)) != 0) {
         printf("getaddrinfo: %s\n", gai_strerror(status));
@@ -158,9 +162,8 @@ void child(int port, unsigned long int bufsize, int tput) {
             continue;
         }
 
-        // convert the IP to a string and print it:
+        // convert the IP to a string and print it if required
         inet_ntop(p->ai_family, addr, ipstr, sizeof ipstr);
-        printf("Will connect to: %s\n", ipstr);
         break;
     }
 
@@ -182,23 +185,27 @@ void child(int port, unsigned long int bufsize, int tput) {
     }
 
     if (tput == 0) {
-        ssize_t r = 0, ret;
+        int i;
 
-        if (send(socketfd, (void *)buffer, bufsize, 0) == -1) {
-            perror("Send error in child");
-        }
+        for (i = 0; i < LATENCY_RUNS; i++) {
+            ssize_t r = 0, ret;
 
-        // Do a round trip
-        while ((ret = recv(socketfd, buffer, bufsize, 0)) > 0) {
-            r += ret;
-            if (r == bufsize)
-                break;
-        }
+            if (send(socketfd, (void *)buffer, bufsize, 0) == -1) {
+                perror("Send error in child");
+            }
 
-        if (ret == -1) {
-            perror("Child: Error in receiving packets");
-        } else if (ret == 0) {
-            printf("Child: Remote connection closed\n");
+            // Do a round trip
+            while ((ret = recv(socketfd, buffer, bufsize, 0)) > 0) {
+                r += ret;
+                if (r == bufsize)
+                    break;
+            }
+
+            if (ret == -1) {
+                perror("Child: Error in receiving packets");
+            } else if (ret == 0) {
+                printf("Child: Remote connection closed\n");
+            }
         }
     } else {
         // TPUT test, send atleast a 100MB of data
