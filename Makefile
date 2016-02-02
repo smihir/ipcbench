@@ -1,7 +1,13 @@
 CC = gcc
 CSCOPE = cscope
 CFLAGS += -Wall -Werror
-#LDFLAGS += -lrt
+LDFLAGS += -lpthread
+
+UNAME_S := $(shell uname -s)
+
+ifeq ($(UNAME_S),Linux)
+	LDFLAGS += -lrt
+endif
 
 SOCKETIPCOBJS := tcp_socket.o\
 
@@ -17,14 +23,13 @@ endif
 all: socketipc smemipc pipeipc
 
 socketipc: $(SOCKETIPCOBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(SOCKETIPCOBJS) -o $@
+	$(CC) $(CFLAGS) $(SOCKETIPCOBJS) -o $@
 
 smemipc: $(SHMEMIPCOBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(SHMEMIPCOBJS) -o $@
+	$(CC) $(CFLAGS) $(SHMEMIPCOBJS) -o $@  $(LDFLAGS)
 
 pipeipc: $(PIPEIPCOBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(PIPEIPCOBJS) -o $@
-
+	$(CC) $(CFLAGS) $(PIPEIPCOBJS) -o $@
 %.o: %.c *.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
