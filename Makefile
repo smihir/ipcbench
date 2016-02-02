@@ -1,18 +1,24 @@
 CC = gcc
 CSCOPE = cscope
 CFLAGS += -Wall -Werror
+#LDFLAGS += -lrt
 
-SOCKET-IPC-OBJS := tcp_socket.o \
+SOCKETIPCOBJS := tcp_socket.o\
+
+SHMEMIPCOBJS := shared_mem.o\
 
 ifeq ($(DEBUG), y)
  CFLAGS += -g -DDEBUG
 endif
 
 .PHONY: all
-all: socketipc
+all: socketipc smemipc
 
-socketipc: $(SOCKET-IPC-OBJS)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(SOCKET-IPC-OBJS) -o $@
+socketipc: $(SOCKETIPCOBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(SOCKETIPCOBJS) -o $@
+
+smemipc: $(SHMEMIPCOBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(SHMEMIPCOBJS) -o $@
 
 %.o: %.c *.h
 	$(CC) $(CFLAGS) -o $@ -c $<
@@ -22,4 +28,4 @@ cscope:
 
 .PHONY: clean
 clean:
-	rm -rf *.o socketipc
+	rm -rf *.o socketipc smemipc

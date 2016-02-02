@@ -28,6 +28,7 @@
 *.x86_64
 *.hex
 socketipc
+smemipc
 
 # Debug files
 *.dSYM/
