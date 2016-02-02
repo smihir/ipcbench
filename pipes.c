@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define LATENCY_RUNS 10
 #define die(msg)     \
     do {             \
         char str[100]; \
@@ -14,7 +15,6 @@
 
 void parent(int *fd, int *fd1, int size, int tput) {
     int info;
-    ssize_t r = 0, ret;
     char *buffer = calloc(sizeof(char), size);
 
     if (buffer == NULL) {
@@ -22,16 +22,20 @@ void parent(int *fd, int *fd1, int size, int tput) {
     }
 
     if (tput == 0) {
-        while ((ret = read(fd[0], buffer, size)) > 0) {
-            r += ret;
-            if (r == size) {
-                write(fd1[1], (void *)buffer, size);
-                break;
+        int i;
+        for (i = 0; i < LATENCY_RUNS; i++) {
+            ssize_t r = 0, ret;
+            while ((ret = read(fd[0], buffer, size)) > 0) {
+                r += ret;
+                if (r == size) {
+                    write(fd1[1], (void *)buffer, size);
+                    break;
+                }
             }
-        }
 
-        if (ret == -1)
-            perror("Error in receiving packets");
+            if (ret == -1)
+                perror("Error in receiving packets");
+        }
     } else {
         // TPUT test, we will receive atleast a 100MB of data
         int num_pkts = (100 * 1024 * 1024) / size;
@@ -57,7 +61,6 @@ void parent(int *fd, int *fd1, int size, int tput) {
 }
 
 void child(int *fd, int *fd1, int size, int tput) {
-    ssize_t r = 0, ret;
     char *buffer = calloc(sizeof(char), size);
 
     if (buffer == NULL) {
@@ -65,15 +68,20 @@ void child(int *fd, int *fd1, int size, int tput) {
     }
 
     if (tput == 0) {
-        if (write(fd[1], (void *)buffer, size) == -1) {
-            die("child: write error");
-        }
+        int i;
+        for (i = 0; i < LATENCY_RUNS; i++) {
+            ssize_t r = 0, ret;
 
-        // Do a round trip
-        while ((ret = read(fd1[0], buffer, size)) > 0) {
-            r += ret;
-            if (r == size) {
-                break;
+            if (write(fd[1], (void *)buffer, size) == -1) {
+                die("child: write error");
+            }
+
+            // Do a round trip
+            while ((ret = read(fd1[0], buffer, size)) > 0) {
+                r += ret;
+                if (r == size) {
+                    break;
+                }
             }
         }
     } else {
