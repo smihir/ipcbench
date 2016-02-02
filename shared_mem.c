@@ -182,9 +182,9 @@ int main(int argc, char **argv) {
 
     pmap = (struct shmem_map *)ptr;
 
-	pthread_mutex_init(&pmap->mutex, &sattr);
-	pthread_cond_init(&pmap->fill, &fattr);
-	pthread_cond_init(&pmap->empty, &eattr);
+    pthread_mutex_init(&pmap->mutex, &sattr);
+    pthread_cond_init(&pmap->fill, &fattr);
+    pthread_cond_init(&pmap->empty, &eattr);
     pmap->produced = 0;
     pmap->consumed = 0;
     pmap->count = 0;
