@@ -81,6 +81,7 @@ void parent(int port, unsigned long int bufsize, int tput) {
 
     if (tput == 0) {
         ssize_t r = 0, ret;
+        // maybe do buffer + r and bufsize -r here...
         while ((ret = recv(confd, buffer, bufsize, 0)) > 0) {
             r += ret;
             if (r == bufsize) {
@@ -101,6 +102,7 @@ void parent(int port, unsigned long int bufsize, int tput) {
         int tot_size = num_pkts * bufsize;
         ssize_t r = 0, ret;
 
+        // naive receive...
         while ((ret = recv(confd, buffer, bufsize, 0)) > 0) {
             r += ret;
             if (r == tot_size) {
