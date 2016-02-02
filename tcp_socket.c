@@ -267,7 +267,7 @@ int main(int argc, char **argv) {
     } else {
         // In child process
         // wait for parent to initialize the port
-        sleep(2);
+        // sleep(2);
 
         child(port, size, tput);
     }
