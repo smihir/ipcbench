@@ -29,6 +29,7 @@
 *.hex
 socketipc
 smemipc
+pipeipc
 
 # Debug files
 *.dSYM/

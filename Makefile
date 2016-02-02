@@ -7,18 +7,23 @@ SOCKETIPCOBJS := tcp_socket.o\
 
 SHMEMIPCOBJS := shared_mem.o\
 
+PIPEIPCOBJS := pipes.o\
+
 ifeq ($(DEBUG), y)
  CFLAGS += -g -DDEBUG
 endif
 
 .PHONY: all
-all: socketipc smemipc
+all: socketipc smemipc pipeipc
 
 socketipc: $(SOCKETIPCOBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(SOCKETIPCOBJS) -o $@
 
 smemipc: $(SHMEMIPCOBJS)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(SHMEMIPCOBJS) -o $@
+
+pipeipc: $(PIPEIPCOBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(PIPEIPCOBJS) -o $@
 
 %.o: %.c *.h
 	$(CC) $(CFLAGS) -o $@ -c $<
@@ -28,4 +33,4 @@ cscope:
 
 .PHONY: clean
 clean:
-	rm -rf *.o socketipc smemipc
+	rm -rf *.o socketipc smemipc pipeipc
