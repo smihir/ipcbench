@@ -12,7 +12,7 @@
         exit(1);     \
     } while(0)       \
 
-void parent(int *fd, int size, int tput) {
+void parent(int *fd, int *fd1, int size, int tput) {
     int info;
     ssize_t r = 0, ret;
     char *buffer = calloc(sizeof(char), size);
@@ -25,7 +25,7 @@ void parent(int *fd, int size, int tput) {
         while ((ret = read(fd[0], buffer, size)) > 0) {
             r += ret;
             if (r == size) {
-                write(fd[1], (void *)buffer, size);
+                write(fd1[1], (void *)buffer, size);
                 break;
             }
         }
@@ -37,7 +37,7 @@ void parent(int *fd, int size, int tput) {
     free(buffer);
 }
 
-void child(int *fd, int size, int tput) {
+void child(int *fd, int *fd1, int size, int tput) {
     ssize_t r = 0, ret;
     char *buffer = calloc(sizeof(char), size);
 
@@ -51,7 +51,7 @@ void child(int *fd, int size, int tput) {
         }
 
         // Do a round trip
-        while ((ret = read(fd[0], buffer, size)) > 0) {
+        while ((ret = read(fd1[0], buffer, size)) > 0) {
             r += ret;
             if (r == size) {
                 break;
@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
     int ch;
     int tput = 0;
     unsigned long int size = 4;
-    int fd[2];
+    int fd[2], fd1[2];
 
     while ((ch = getopt(argc, argv, "p:s:t")) != -1) {
         switch (ch) {
@@ -82,21 +82,20 @@ int main(int argc, char **argv) {
         }
     }
 
-    if (pipe(fd) == -1)
+    if (pipe(fd) == -1 || pipe(fd1) == -1)
         die("pipe");
+
+    printf("running pipe ipc for bufsize = %lu, tput = %d\n", size, tput);
 
     pid = fork();
     if (pid == -1) {
         die("Unable to fork");
     } else if (pid != 0) {
         // In parent, do parent related stuff
-        parent(fd, size, tput);
+        parent(fd, fd1, size, tput);
     } else {
         // In child process
-        // wait for parent to initialize the port
-        sleep(2);
-
-        child(fd, size, tput);
+        child(fd, fd1, size, tput);
     }
 
     return 0;
