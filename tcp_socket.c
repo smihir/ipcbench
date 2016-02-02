@@ -11,6 +11,7 @@
 #include <arpa/inet.h>
 
 #define BACKLOG 50
+#define DEFAULT_PORT 9000
 
 #define die(msg)     \
     do {             \
@@ -20,14 +21,16 @@
         exit(1);     \
     } while(0)       \
 
-void parent(int port) {
+void parent(int port, unsigned long int bufsize, int tput) {
     int fd, confd, flag = 1;
     struct sockaddr_in my;
     struct sockaddr_storage their;
     socklen_t sz = sizeof(their);
-    int pid = -1;
-    char buffer[100] = {'\0'};
-    int len = 100;
+    int info;
+    char *buffer = calloc(sizeof(char), bufsize);
+    if (buffer == NULL) {
+        die("cannot alloc memory for rx");
+    }
 
     fd = socket(PF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
@@ -76,22 +79,60 @@ void parent(int port) {
         die("Cannot disable Nagle!");
     }
 
-    recv(confd, buffer, len, 0);
-    printf("%s", buffer);
+    if (tput == 0) {
+        ssize_t r = 0, ret;
+        while ((ret = recv(confd, buffer, bufsize, 0)) > 0) {
+            r += ret;
+            if (r == bufsize) {
+                send(confd, (void *)buffer, bufsize, 0);
+                break;
+            }
+        }
+
+        if (ret == -1) {
+            perror("Error in receiving packets");
+        } else if (ret == 0) {
+            printf("Remote connection closed\n");
+        }
+    } else {
+        // TPUT test, we will receive atleast a 100MB of data
+        int num_pkts = (100 * 1024 * 1024) / bufsize;
+        // avoid errors due to remainder
+        int tot_size = num_pkts * bufsize;
+        ssize_t r = 0, ret;
+
+        while ((ret = recv(confd, buffer, bufsize, 0)) > 0) {
+            r += ret;
+            if (r == tot_size) {
+                send(confd, (void *)buffer, 1, 0);
+                break;
+            }
+        }
+
+        if (ret == -1) {
+            perror("Error in receiving packets");
+        } else if (ret == 0) {
+            printf("Remote connection closed\n");
+        }
+    }
+
+    wait(&info);
     close(fd);
     close(confd);
-    pid = -1;
-    wait(&pid);
 }
 
-void child(int port) {
+void child(int port, unsigned long int bufsize, int tput) {
     struct addrinfo hints, *res, *p;
     int status;
     char ipstr[INET_ADDRSTRLEN];
     int socketfd;
     int flag;
     char s_port[10];
-    char *buffer = "lilili\n";
+    char *buffer = calloc(sizeof(char), bufsize);
+
+    if (buffer == NULL) {
+        die("cannot alloc memory for tx");
+    }
 
     snprintf(s_port, sizeof(s_port), "%d", port);
     memset(&hints, 0, sizeof hints);
@@ -137,23 +178,96 @@ void child(int port) {
         die("client connect");
         return;
     }
-    send(socketfd, (void *)buffer, strlen(buffer), 0);
+
+    if (tput == 0) {
+        ssize_t r = 0, ret;
+
+        if (send(socketfd, (void *)buffer, bufsize, 0) == -1) {
+            perror("Send error in child");
+        }
+
+        // Do a round trip
+        while ((ret = recv(socketfd, buffer, bufsize, 0)) > 0) {
+            r += ret;
+            if (r == bufsize)
+                break;
+        }
+
+        if (ret == -1) {
+            perror("Child: Error in receiving packets");
+        } else if (ret == 0) {
+            printf("Child: Remote connection closed\n");
+        }
+    } else {
+        // TPUT test, send atleast a 100MB of data
+        int num_pkts = (100 * 1024 * 1024) / bufsize;
+        int i = 0;
+        ssize_t ret;
+
+        for (i = 0; i < num_pkts; i++) {
+            if (send(socketfd, (void *)buffer, bufsize, 0) == -1) {
+                perror("Send error in child");
+                break;
+            }
+        }
+
+        // receive ack
+        if ((ret = recv(socketfd, buffer, bufsize, 0)) > 0) {
+            // calculate timings
+        }
+
+        if (ret == -1) {
+            perror("Child: Error in receiving packets");
+        } else if (ret == 0) {
+            printf("Child: Remote connection closed\n");
+        }
+    }
 }
 
 int main(int argc, char **argv) {
     int pid;
+    int ch;
+    unsigned long int port = DEFAULT_PORT;
+    int tput = 0;
+    unsigned long int size = 4;
+
+    // make provision to specify the port in case
+    // DEFAULT_PORT(9000) does not work
+    while ((ch = getopt(argc, argv, "p:s:t")) != -1) {
+        switch (ch) {
+            case 'p':
+                port = strtoul(optarg, NULL, 10);
+                if (port <= 1024 || port > 65536) {
+                    printf("Invalid Port\n");
+                    exit(1);
+                }
+                break;
+            case 't':
+                tput = 1;
+                break;
+            case 's':
+                size = strtoul(optarg, NULL, 10);
+                break;
+            case '?':
+            default:
+                printf("Not enough arguments\n");
+        }
+    }
+
+    printf("Operating on port %lu, size %lu\n", port, size);
 
     pid = fork();
     if (pid == -1) {
         die("Unable to fork");
-    } else if (pid == 0) {
+    } else if (pid != 0) {
         // In parent, do parent related stuff
-        parent(15000);
+        parent(port, size, tput);
     } else {
         // In child process
-
+        // wait for parent to initialize the port
         sleep(2);
-        child(15000);
+
+        child(port, size, tput);
     }
 
     return 0;
