@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "hwtimer.h"
 
 #define LATENCY_RUNS 10
 #define die(msg)     \
@@ -69,9 +70,13 @@ void child(int *fd, int *fd1, int size, int tput) {
 
     if (tput == 0) {
         int i;
+        uint64_t ns_time[LATENCY_RUNS];
         for (i = 0; i < LATENCY_RUNS; i++) {
             ssize_t r = 0, ret;
-
+            int ticks;
+            hwtimer_t* tsc_t;
+            init_timer(tsc_t);
+            start_timer(tsc_t);
             if (write(fd[1], (void *)buffer, size) == -1) {
                 die("child: write error");
             }
@@ -83,6 +88,12 @@ void child(int *fd, int *fd1, int size, int tput) {
                     break;
                 }
             }
+            stop_timer(tsc_t);
+            ticks = get_timer_ticks(tsc_t);
+            ns_time[i]=get_timer_ns(tsc_t);
+        }
+        for (i = 0; i<LATENCY_RUNS;i++){
+            printf("%llu \n", ns_time[i]);
         }
     } else {
         // TPUT test, send atleast a 100MB of data
