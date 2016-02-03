@@ -30,6 +30,7 @@
 socketipc
 smemipc
 pipeipc
+tsc_precision
 
 # Debug files
 *.dSYM/

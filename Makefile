@@ -15,12 +15,14 @@ SHMEMIPCOBJS := shared_mem.o\
 
 PIPEIPCOBJS := pipes.o\
 
+PRECISIONOBJS := precision.o\
+
 ifeq ($(DEBUG), y)
  CFLAGS += -g -DDEBUG
 endif
 
 .PHONY: all
-all: socketipc smemipc pipeipc
+all: socketipc smemipc pipeipc tsc_precision
 
 socketipc: $(SOCKETIPCOBJS)
 	$(CC) $(CFLAGS) $(SOCKETIPCOBJS) -o $@
@@ -30,6 +32,10 @@ smemipc: $(SHMEMIPCOBJS)
 
 pipeipc: $(PIPEIPCOBJS)
 	$(CC) $(CFLAGS) $(PIPEIPCOBJS) -o $@
+
+tsc_precision: $(PRECISIONOBJS)
+	$(CC) $(CFLAGS) $(PRECISIONOBJS) -o $@
+
 %.o: %.c *.h
 	$(CC) $(CFLAGS) -o $@ -c $<
 
@@ -38,4 +44,4 @@ cscope:
 
 .PHONY: clean
 clean:
-	rm -rf *.o socketipc smemipc pipeipc
+	rm -rf *.o socketipc smemipc pipeipc precisionipc
