@@ -104,7 +104,7 @@ void child(int *fd, int *fd1, int size, int tput) {
                 }
             }
             stop_timer(&tsc_t);
-            ns_time[i]=get_timer_ns(&tsc_t);
+            ns_time[i]=get_timer_ns(&tsc_t)/2;
         }
         for (i = 0; i<LATENCY_RUNS;i++){
             printf("%lu \n", ns_time[i]);
@@ -114,8 +114,11 @@ void child(int *fd, int *fd1, int size, int tput) {
         int num_pkts = (100 * 1024 * 1024) / size;
         int i = 0;
         ssize_t ret;
-
-        for (i = 0; i < num_pkts; i++) {
+        hwtimer_t tsc_t;
+        uint64_t ns_time;
+        init_timer(&tsc_t);
+        start_timer(&tsc_t);
+         for (i = 0; i < num_pkts; i++) {
             if (write(fd[1], (void *)buffer, size) == -1) {
                 die("Send error in child");
             }
@@ -125,7 +128,9 @@ void child(int *fd, int *fd1, int size, int tput) {
         if ((ret = read(fd1[0], buffer, size)) > 0) {
             // calculate timings
         }
-
+        stop_timer(&tsc_t);
+        ns_time=get_timer_ns(&tsc_t)/2;
+        printf("%lu \n", ns_time);
         if (ret == -1) {
             die("Child: Error in receiving ack");
         }

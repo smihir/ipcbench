@@ -222,7 +222,7 @@ void child(int port, unsigned long int bufsize, int tput) {
                     break;
             }
             stop_timer(&tsc_t);
-            ns_time[i]=get_timer_ns(&tsc_t);
+            ns_time[i]=get_timer_ns(&tsc_t)/2;
 
             if (ret == -1) {
                 perror("Child: Error in receiving packets");
@@ -238,6 +238,10 @@ void child(int port, unsigned long int bufsize, int tput) {
         int num_pkts = (100 * 1024 * 1024) / bufsize;
         int i = 0;
         ssize_t ret;
+        hwtimer_t tsct;
+        uint64_t ns_time;
+        init_timer(&tsct);
+        start_timer(&tsct);
 
         for (i = 0; i < num_pkts; i++) {
             if (send(socketfd, (void *)buffer, bufsize, 0) == -1) {
@@ -250,7 +254,9 @@ void child(int port, unsigned long int bufsize, int tput) {
         if ((ret = recv(socketfd, buffer, bufsize, 0)) > 0) {
             // calculate timings
         }
-
+        stop_timer(&tsct);
+        ns_time = get_timer_ns(&tsct);
+        printf("%lu \n", ns_time);
         if (ret == -1) {
             perror("Child: Error in receiving packets");
         } else if (ret == 0) {

@@ -8,6 +8,7 @@
 #include <sys/mman.h>
 #include <sys/wait.h>
 #include <pthread.h>
+#include "hwtimer.h"
 
 #define LATENCY_RUNS 10
 #define MAX_MEM (512 * 1024)
@@ -53,8 +54,11 @@ void child(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
 
     if (tput == 0) {
         int i;
+        hwtimer_t tsct;
+        uint64_t ns_time[LATENCY_RUNS];
         for (i = 0; i < LATENCY_RUNS; i++) {
-
+            init_timer(&tsct);
+            start_timer(&tsct);
             // consume
             pthread_mutex_lock(&pmap->mutex);
             while (pmap->count == 0) {
@@ -80,11 +84,20 @@ void child(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
 
             pthread_cond_signal(&pmap2->fill);
             pthread_mutex_unlock(&pmap2->mutex);
+
+            stop_timer(&tsct);
+            ns_time[i] = get_timer_ns(&tsct)/2;
         }
+        for (i = 0; i<LATENCY_RUNS;i++){
+            printf("%lu \n", ns_time[i]);
+         }
     } else {
         // TPUT test, we will receive atleast a 100MB of data
         int num_pkts = (100 * 1024 * 1024) / size;
-
+        hwtimer_t tsct;
+        uint64_t ns_time;
+        init_timer(&tsct);
+        start_timer(&tsct);
         while (num_pkts-- > 0) {
             pthread_mutex_lock(&pmap->mutex);
             while (pmap->count == 0) {
@@ -110,6 +123,9 @@ void child(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
 
         pthread_cond_signal(&pmap2->fill);
         pthread_mutex_unlock(&pmap2->mutex);
+        stop_timer(&tsct);
+        ns_time = get_timer_ns(&tsct);
+        printf("%lu \n", ns_time);
     }
     free(buffer);
 }

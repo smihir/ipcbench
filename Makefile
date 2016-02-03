@@ -21,20 +21,24 @@ ifeq ($(DEBUG), y)
  CFLAGS += -g -DDEBUG
 endif
 
+ifeq ($(TSCTIMER), y)
+ CFLAGS += -g -TSCTIMER
+endif
+
 .PHONY: all
 all: socketipc smemipc pipeipc tsc_precision
 
 socketipc: $(SOCKETIPCOBJS)
-	$(CC) $(CFLAGS) $(SOCKETIPCOBJS) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(SOCKETIPCOBJS) -o $@
 
 smemipc: $(SHMEMIPCOBJS)
-	$(CC) $(CFLAGS) $(SHMEMIPCOBJS) -o $@  $(LDFLAGS)
+	$(CC) $(CFLAGS) $(LDFLAGS) $(SHMEMIPCOBJS) -o $@  $(LDFLAGS)
 
 pipeipc: $(PIPEIPCOBJS)
-	$(CC) $(CFLAGS) $(PIPEIPCOBJS) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(PIPEIPCOBJS) -o $@
 
 tsc_precision: $(PRECISIONOBJS)
-	$(CC) $(CFLAGS) $(PRECISIONOBJS) -o $@
+	$(CC) $(CFLAGS) $(LDFLAGS) $(PRECISIONOBJS) -o $@
 
 %.o: %.c *.h
 	$(CC) $(CFLAGS) -o $@ -c $<
@@ -44,4 +48,4 @@ cscope:
 
 .PHONY: clean
 clean:
-	rm -rf *.o socketipc smemipc pipeipc precisionipc
+	rm -rf *.o socketipc smemipc pipeipc tsc_precision

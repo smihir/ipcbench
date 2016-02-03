@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <string.h>
-
+#include <time.h>
 #include <stdio.h>
 
 typedef uint64_t hrtime_t;
@@ -53,12 +53,24 @@ inline void init_timer(hwtimer_t* timer)
 
 inline void start_timer(hwtimer_t* timer)
 {
-	timer->start = _rdtsc();
+#if 0
+    timer->start = _rdtsc();
+#else
+    struct timespec time1;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+    timer->start = time1.tv_nsec;
+#endif
 }
 
 inline void stop_timer(hwtimer_t* timer)
 {
-	timer->end = _rdtsc();
+#if 0
+    timer->end = _rdtsc();
+#else
+    struct timespec time1;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
+    timer->end = time1.tv_nsec;
+#endif
 }
 
 inline uint64_t get_timer_ticks(hwtimer_t* timer)
@@ -74,7 +86,10 @@ inline uint64_t get_timer_ns(hwtimer_t* timer)
 		*/
 		return 0;
 	}
+#if 0
 	return (uint64_t)(((double)get_timer_ticks(timer))/timer->cpuMHz*1000);
+#else
+    return (uint64_t)(get_timer_ticks(timer));
+#endif
 }
-
 #endif
