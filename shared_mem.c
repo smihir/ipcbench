@@ -85,6 +85,18 @@ void child(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
             pthread_cond_signal(&pmap->empty);
             pthread_mutex_unlock(&pmap->mutex);
         }
+
+        // ack data transfer
+        pthread_mutex_lock(&pmap2->mutex);
+        while (pmap2->count == max_count) {
+            pthread_cond_wait(&pmap2->empty, &pmap2->mutex);
+        }
+
+        pmap2->produced = (pmap2->produced + 1) % max_count;
+        pmap2->count++;
+
+        pthread_cond_signal(&pmap2->fill);
+        pthread_mutex_unlock(&pmap2->mutex);
     }
     free(buffer);
 }
@@ -147,6 +159,18 @@ void parent(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
             pthread_cond_signal(&pmap->fill);
             pthread_mutex_unlock(&pmap->mutex);
         }
+
+        // wait for ack
+        pthread_mutex_lock(&pmap2->mutex);
+        while (pmap2->count == 0) {
+            pthread_cond_wait(&pmap2->fill, &pmap2->mutex);
+        }
+
+        pmap2->consumed = (pmap2->consumed + 1) % max_count;
+        pmap2->count--;
+
+        pthread_cond_signal(&pmap2->empty);
+        pthread_mutex_unlock(&pmap2->mutex);
     }
     free(buffer);
 }
