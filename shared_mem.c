@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+#include <sched.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -16,6 +18,16 @@
         perror(str); \
         exit(1);     \
     } while(0)       \
+
+void set_affinity(int cpuid) {
+    cpu_set_t set;
+
+    CPU_ZERO(&set);
+    CPU_SET(cpuid, &set);
+
+    if (sched_setaffinity(getpid(), sizeof(set), &set) == -1)
+        perror("sched_affinity");
+}
 
 struct shmem_map {
     pthread_mutex_t mutex;
@@ -37,6 +49,7 @@ void child(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
         printf("cannot alloc memory for rx\n");
         return;
     }
+    set_affinity(0);
 
     if (tput == 0) {
         int i;
@@ -111,6 +124,7 @@ void parent(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
         printf("cannot alloc memory for rx\n");
         return;
     }
+    set_affinity(1);
 
     if (tput == 0) {
         int i;
