@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+#include <sched.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <string.h>
@@ -14,6 +16,16 @@
         exit(1);     \
     } while(0)       \
 
+void set_affinity(int cpuid) {
+    cpu_set_t set;
+
+    CPU_ZERO(&set);
+    CPU_SET(cpuid, &set);
+
+    if (sched_setaffinity(getpid(), sizeof(set), &set) == -1)
+        perror("sched_affinity");
+}
+
 void parent(int *fd, int *fd1, int size, int tput) {
     int info;
     char *buffer = calloc(sizeof(char), size);
@@ -21,6 +33,8 @@ void parent(int *fd, int *fd1, int size, int tput) {
     if (buffer == NULL) {
         die("cannot alloc memory for rx");
     }
+
+    set_affinity(0);
 
     if (tput == 0) {
         int i;
@@ -67,6 +81,8 @@ void child(int *fd, int *fd1, int size, int tput) {
     if (buffer == NULL) {
         die("cannot alloc memory for tx");
     }
+
+    set_affinity(1);
 
     if (tput == 0) {
         int i;

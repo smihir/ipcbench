@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+#include <sched.h>
 #include <sys/socket.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -23,6 +25,16 @@
         exit(1);     \
     } while(0)       \
 
+void set_affinity(int cpuid) {
+    cpu_set_t set;
+
+    CPU_ZERO(&set);
+    CPU_SET(cpuid, &set);
+
+    if (sched_setaffinity(getpid(), sizeof(set), &set) == -1)
+        perror("sched_affinity");
+}
+
 void parent(int port, unsigned long int bufsize, int tput) {
     int fd, confd, flag = 1;
     struct sockaddr_in my;
@@ -33,6 +45,8 @@ void parent(int port, unsigned long int bufsize, int tput) {
     if (buffer == NULL) {
         die("cannot alloc memory for rx");
     }
+
+    set_affinity(0);
 
     fd = socket(PF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
@@ -141,6 +155,8 @@ void child(int port, unsigned long int bufsize, int tput) {
     if (buffer == NULL) {
         die("cannot alloc memory for tx");
     }
+
+    set_affinity(1);
 
     snprintf(s_port, sizeof(s_port), "%d", port);
     memset(&hints, 0, sizeof hints);
