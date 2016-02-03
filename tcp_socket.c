@@ -229,10 +229,9 @@ void child(int port, unsigned long int bufsize, int tput) {
             } else if (ret == 0) {
                 printf("Child: Remote connection closed\n");
             }
-            for (i = 0;i < LATENCY_RUNS; i++)
-            {
-                printf("%lu \n", ns_time[i]);
-            }
+        }
+        for (i = 0;i < LATENCY_RUNS; i++) {
+            printf("%lu \n", ns_time[i]);
         }
     } else {
         // TPUT test, send atleast a 100MB of data
