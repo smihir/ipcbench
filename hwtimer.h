@@ -22,8 +22,8 @@ typedef struct {
 
 inline void reset_timer(hwtimer_t* timer)
 {
-	hrtime_t start = 0;
-	hrtime_t end = 0;
+	timer->start = 0;
+	timer->end = 0;
 }
 
 inline void init_timer(hwtimer_t* timer) 

@@ -203,13 +203,14 @@ void child(int port, unsigned long int bufsize, int tput) {
 
     if (tput == 0) {
         int i;
-        int ticks;
+        hwtimer_t tsc_t;
         uint64_t ns_time[LATENCY_RUNS];
         for (i = 0; i < LATENCY_RUNS; i++) {
             ssize_t r = 0, ret;
-            hwtimer_t* tsc_t;
-            init_timer(tsc_t);
-            start_timer(tsc_t);
+
+            init_timer(&tsc_t);
+            start_timer(&tsc_t);
+
             if (send(socketfd, (void *)buffer, bufsize, 0) == -1) {
                 perror("Send error in child");
             }
@@ -220,18 +221,17 @@ void child(int port, unsigned long int bufsize, int tput) {
                 if (r == bufsize)
                     break;
             }
-            stop_timer(tsc_t);
-            ticks = get_timer_ticks(tsc_t);
-            ns_time[i]=get_timer_ns(tsc_t);
+            stop_timer(&tsc_t);
+            ns_time[i]=get_timer_ns(&tsc_t);
 
             if (ret == -1) {
                 perror("Child: Error in receiving packets");
             } else if (ret == 0) {
                 printf("Child: Remote connection closed\n");
             }
-            for (i=0;i < LATENCY_RUNS; i++)
+            for (i = 0;i < LATENCY_RUNS; i++)
             {
-                printf("%llu \n", ns_time[i]);
+                printf("%lu \n", ns_time[i]);
             }
         }
     } else {
