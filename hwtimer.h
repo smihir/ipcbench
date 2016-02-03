@@ -53,7 +53,7 @@ inline void init_timer(hwtimer_t* timer)
 
 inline void start_timer(hwtimer_t* timer)
 {
-#if 0
+#if defined(TSCTIMER)
     timer->start = _rdtsc();
 #else
     struct timespec time1;
@@ -64,7 +64,7 @@ inline void start_timer(hwtimer_t* timer)
 
 inline void stop_timer(hwtimer_t* timer)
 {
-#if 0
+#if defined(TSCTIMER)
     timer->end = _rdtsc();
 #else
     struct timespec time1;
@@ -86,7 +86,7 @@ inline uint64_t get_timer_ns(hwtimer_t* timer)
 		*/
 		return 0;
 	}
-#if 0
+#if defined(TSCTIMER)
 	return (uint64_t)(((double)get_timer_ticks(timer))/timer->cpuMHz*1000);
 #else
     return (uint64_t)(get_timer_ticks(timer));
