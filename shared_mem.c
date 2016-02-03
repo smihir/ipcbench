@@ -27,7 +27,8 @@ struct shmem_map {
     char data[0];
 };
 
-void child(struct shmem_map *pmap, int tput, int size, size_t region_size) {
+void child(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
+           size_t region_size) {
     int max_data = region_size - sizeof(struct shmem_map);
     int max_count = max_data / size;
     char *buffer = calloc(sizeof(char), size);
@@ -40,6 +41,8 @@ void child(struct shmem_map *pmap, int tput, int size, size_t region_size) {
     if (tput == 0) {
         int i;
         for (i = 0; i < LATENCY_RUNS; i++) {
+
+            // consume
             pthread_mutex_lock(&pmap->mutex);
             while (pmap->count == 0) {
                 pthread_cond_wait(&pmap->fill, &pmap->mutex);
@@ -51,6 +54,19 @@ void child(struct shmem_map *pmap, int tput, int size, size_t region_size) {
 
             pthread_cond_signal(&pmap->empty);
             pthread_mutex_unlock(&pmap->mutex);
+
+            // produce
+            pthread_mutex_lock(&pmap2->mutex);
+            while (pmap2->count == max_count) {
+                pthread_cond_wait(&pmap2->empty, &pmap2->mutex);
+            }
+
+            memcpy(&pmap2->data[0] + (pmap2->produced * size), buffer, size);
+            pmap2->produced = (pmap2->produced + 1) % max_count;
+            pmap2->count++;
+
+            pthread_cond_signal(&pmap2->fill);
+            pthread_mutex_unlock(&pmap2->mutex);
         }
     } else {
         // TPUT test, we will receive atleast a 100MB of data
@@ -73,7 +89,8 @@ void child(struct shmem_map *pmap, int tput, int size, size_t region_size) {
     free(buffer);
 }
 
-void parent(struct shmem_map *pmap, int tput, int size, size_t region_size) {
+void parent(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
+            size_t region_size) {
     int max_data = region_size - sizeof(struct shmem_map);
     int max_count = max_data / size;
     char *buffer = calloc(sizeof(char), size);
@@ -86,6 +103,8 @@ void parent(struct shmem_map *pmap, int tput, int size, size_t region_size) {
     if (tput == 0) {
         int i;
         for (i = 0; i < LATENCY_RUNS; i++) {
+
+            // produce
             pthread_mutex_lock(&pmap->mutex);
             while (pmap->count == max_count) {
                 pthread_cond_wait(&pmap->empty, &pmap->mutex);
@@ -97,6 +116,19 @@ void parent(struct shmem_map *pmap, int tput, int size, size_t region_size) {
 
             pthread_cond_signal(&pmap->fill);
             pthread_mutex_unlock(&pmap->mutex);
+
+            // consume
+            pthread_mutex_lock(&pmap2->mutex);
+            while (pmap2->count == 0) {
+                pthread_cond_wait(&pmap2->fill, &pmap2->mutex);
+            }
+
+            memcpy(buffer, &pmap2->data[0] + (pmap2->consumed * size), size);
+            pmap2->consumed = (pmap2->consumed + 1) % max_count;
+            pmap2->count--;
+
+            pthread_cond_signal(&pmap2->empty);
+            pthread_mutex_unlock(&pmap2->mutex);
         }
     } else {
         // TPUT test, we will send atleast a 100MB of data
@@ -120,16 +152,19 @@ void parent(struct shmem_map *pmap, int tput, int size, size_t region_size) {
 }
 
 int main(int argc, char **argv) {
-    int r, fd;
-    const char *memname = "/smemipc";
-    const size_t region_size = MAX_MEM + sizeof(struct shmem_map);
-    void *ptr;
-    struct shmem_map *pmap;
+    int r, fd, fd2;
+    void *ptr, *ptr2;
     int ch;
     int tput = 0;
     unsigned long int size = 4;
     pthread_mutexattr_t sattr;
     pthread_condattr_t fattr, eattr;
+    const char *memname = "/smemipc";
+    struct shmem_map *pmap = NULL;
+    // The second instance is for Latency measurement
+    const char *memname2 = "/smemipc2";
+    struct shmem_map *pmap2 = NULL;
+    const size_t region_size = MAX_MEM + sizeof(struct shmem_map);
 
     while ((ch = getopt(argc, argv, "s:t")) != -1) {
         switch (ch) {
@@ -173,12 +208,19 @@ int main(int argc, char **argv) {
     }
     // clear older references...
     shm_unlink(memname);
+    shm_unlink(memname2);
 
     fd = shm_open(memname, O_CREAT | O_RDWR, 0666);
     if (fd == -1)
         die("shm_open");
+    fd2 = shm_open(memname2, O_CREAT | O_RDWR, 0666);
+    if (fd == -1)
+        die("shm_open");
 
     r = ftruncate(fd, region_size);
+    if (r != 0)
+        die("ftruncate");
+    r = ftruncate(fd2, region_size);
     if (r != 0)
         die("ftruncate");
 
@@ -186,8 +228,13 @@ int main(int argc, char **argv) {
     if (ptr == MAP_FAILED)
         die("mmap");
     close(fd);
+    ptr2 = mmap(0, region_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd2, 0);
+    if (ptr == MAP_FAILED)
+        die("mmap");
+    close(fd2);
 
     pmap = (struct shmem_map *)ptr;
+    pmap2 = (struct shmem_map *)ptr2;
 
     pthread_mutex_init(&pmap->mutex, &sattr);
     pthread_cond_init(&pmap->fill, &fattr);
@@ -195,26 +242,30 @@ int main(int argc, char **argv) {
     pmap->produced = 0;
     pmap->consumed = 0;
     pmap->count = 0;
+    pthread_mutex_init(&pmap2->mutex, &sattr);
+    pthread_cond_init(&pmap2->fill, &fattr);
+    pthread_cond_init(&pmap2->empty, &eattr);
+    pmap2->produced = 0;
+    pmap2->consumed = 0;
+    pmap2->count = 0;
 
     pid_t pid = fork();
 
     if (pid == 0) {
-        child(pmap, tput, size, region_size);
+        child(pmap, pmap2, tput, size, region_size);
         exit(0);
     } else if (pid > 0){
-        parent(pmap, tput, size, region_size);
+        parent(pmap, pmap2, tput, size, region_size);
     } else {
         printf("error forking\n");
     }
 
 
-    r = munmap(ptr, region_size);
-    if (r != 0)
-        die("munmap");
+    munmap(ptr, region_size);
+    munmap(ptr2, region_size);
 
-    r = shm_unlink(memname);
-    if (r != 0)
-        die("shm_unlink");
+    shm_unlink(memname);
+    shm_unlink(memname2);
 
     return 0;
 }
