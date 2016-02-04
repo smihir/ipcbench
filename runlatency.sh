@@ -1,7 +1,7 @@
 #latency only
 
-rm -rf output
-mkdir output
+rm -rf output_latency
+mkdir output_latency
 
 
 ./pipeipc -s 4 > output/pipe_s4.txt

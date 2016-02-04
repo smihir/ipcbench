@@ -2,10 +2,10 @@
 rm -rf output
 
 mkdir output
-./pipeipc > output/pipe_latency.txt
-./socketipc > output/socket_latency.txt
-./smemipc > output/smemipc_latency.txt
-./tsc_precision > output/tsc_precision_latency.txt
+#./pipeipc > output/pipe_latency.txt
+#./socketipc > output/socket_latency.txt
+#./smemipc > output/smemipc_latency.txt
+#./tsc_precision > output/tsc_precision_latency.txt
 
 
 ./pipeipc -t -s 4 > output/pipe_s4.txt
