@@ -10,7 +10,7 @@
 #include <pthread.h>
 #include "hwtimer.h"
 
-#define LATENCY_RUNS 10
+#define LATENCY_RUNS 100
 #define MAX_MEM (512 * 1024)
 #define die(msg)     \
     do {             \

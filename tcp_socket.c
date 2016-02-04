@@ -15,7 +15,7 @@
 
 #define BACKLOG 50
 #define DEFAULT_PORT 9000
-#define LATENCY_RUNS 10
+#define LATENCY_RUNS 100
 
 #define die(msg)     \
     do {             \

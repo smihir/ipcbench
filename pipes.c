@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include "hwtimer.h"
 
-#define LATENCY_RUNS 10
+#define LATENCY_RUNS 100
 #define die(msg)     \
     do {             \
         char str[100]; \
