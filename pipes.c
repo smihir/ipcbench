@@ -107,7 +107,10 @@ void child(int *fd, int *fd1, int size, int tput) {
             ns_time[i]=get_timer_ns(&tsc_t)/2;
         }
         for (i = 0; i<LATENCY_RUNS;i++){
-            printf("%d %lu \n", i, ns_time[i]);
+            printf("%lu", ns_time[i]);
+            if(i!=LATENCY_RUNS-1){
+                printf("\n");
+            }
         }
     } else {
         // TPUT test, send atleast a 100MB of data
