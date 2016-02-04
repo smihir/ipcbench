@@ -89,7 +89,7 @@ void child(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
             ns_time[i] = get_timer_ns(&tsct)/2;
         }
         for (i = 0; i<LATENCY_RUNS;i++){
-            printf("%lu \n", ns_time[i]);
+            printf("%d %lu \n", i, ns_time[i]);
          }
     } else {
         // TPUT test, we will receive atleast a 100MB of data

@@ -231,7 +231,7 @@ void child(int port, unsigned long int bufsize, int tput) {
             }
         }
         for (i = 0;i < LATENCY_RUNS; i++) {
-            printf("%lu \n", ns_time[i]);
+            printf("%d %lu \n", i, ns_time[i]);
         }
     } else {
         // TPUT test, send atleast a 100MB of data
@@ -295,7 +295,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf("Operating on port %lu, size %lu\n", port, size);
+    //printf("Operating on port %lu, size %lu\n", port, size);
 
     pid = fork();
     if (pid == -1) {

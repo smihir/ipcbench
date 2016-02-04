@@ -107,7 +107,7 @@ void child(int *fd, int *fd1, int size, int tput) {
             ns_time[i]=get_timer_ns(&tsc_t)/2;
         }
         for (i = 0; i<LATENCY_RUNS;i++){
-            printf("%lu \n", ns_time[i]);
+            printf("%d %lu \n", i, ns_time[i]);
         }
     } else {
         // TPUT test, send atleast a 100MB of data
@@ -162,7 +162,7 @@ int main(int argc, char **argv) {
     if (pipe(fd) == -1 || pipe(fd1) == -1)
         die("pipe");
 
-    printf("running pipe ipc for bufsize = %lu, tput = %d\n", size, tput);
+    //printf("running pipe ipc for bufsize = %lu, tput = %d\n", size, tput);
 
     pid = fork();
     if (pid == -1) {
