@@ -65,7 +65,7 @@ void child(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
                 pthread_cond_wait(&pmap->fill, &pmap->mutex);
             }
 
-            memcpy(buffer, &pmap->data[0] + (pmap->consumed * size), size);
+            //memcpy(buffer, &pmap->data[0] + (pmap->consumed * size), size);
             pmap->consumed = (pmap->consumed + 1) % max_count;
             pmap->count--;
 
@@ -108,7 +108,7 @@ void child(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
                 pthread_cond_wait(&pmap->fill, &pmap->mutex);
             }
 
-            memcpy(buffer, &pmap->data[0] + (pmap->consumed * size), size);
+            //memcpy(buffer, &pmap->data[0] + (pmap->consumed * size), size);
             pmap->consumed = (pmap->consumed + 1) % max_count;
             pmap->count--;
 
