@@ -10,7 +10,7 @@ typedef uint64_t hrtime_t;
 
 __inline__ hrtime_t _rdtsc() {
     unsigned long int lo, hi;
-    __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
+    __asm__ __volatile__ ("rdtscp" : "=a" (lo), "=d" (hi));
     return (hrtime_t)hi << 32 | lo;
 }
 
@@ -57,8 +57,8 @@ inline void start_timer(hwtimer_t* timer)
     timer->start = _rdtsc();
 #else
     struct timespec time1;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-    timer->start = time1.tv_nsec;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &time1);
+    timer->start = (time1.tv_sec * 1000000000) + time1.tv_nsec;
 #endif
 }
 
@@ -68,8 +68,8 @@ inline void stop_timer(hwtimer_t* timer)
     timer->end = _rdtsc();
 #else
     struct timespec time1;
-    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time1);
-    timer->end = time1.tv_nsec;
+    clock_gettime(CLOCK_MONOTONIC_RAW, &time1);
+    timer->end = (time1.tv_sec * 1000000000) + time1.tv_nsec;
 #endif
 }
 
