@@ -33,6 +33,11 @@ pipeipc
 tsc_precision
 raw_precision
 clk_precision
+*.tar
+output/*
+outputlatency/*
+results/*
 
 # Debug files
 *.dSYM/
+.DS_Store
