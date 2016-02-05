@@ -1,70 +1,104 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-with open("outputlatency/pipe_s4.txt") as f1:
+with open("output/pipe_s4.txt") as f1:
     data1 = f1.read()
-with open("outputlatency/pipe_s16.txt") as f2:
+with open("output/pipe_s16.txt") as f2:
     data2 = f2.read()
-with open("outputlatency/pipe_s64.txt") as f3:
+with open("output/pipe_s64.txt") as f3:
     data3 = f3.read()
-with open("outputlatency/pipe_s256.txt") as f4:
+with open("output/pipe_s256.txt") as f4:
     data4 = f4.read()
-with open("outputlatency/pipe_s1024.txt") as f5:
+with open("output/pipe_s1024.txt") as f5:
     data5 = f5.read()
-with open("outputlatency/pipe_s4096.txt") as f6:
+with open("output/pipe_s4096.txt") as f6:
     data6 = f6.read()
-with open("outputlatency/pipe_s16k.txt") as f7:
+with open("output/pipe_s16k.txt") as f7:
     data7 = f7.read()
-with open("outputlatency/pipe_s64k.txt") as f8:
+with open("output/pipe_s64k.txt") as f8:
     data8 = f8.read()
-with open("outputlatency/pipe_s256k.txt") as f9:
+with open("output/pipe_s256k.txt") as f9:
     data9 = f9.read()
-with open("outputlatency/pipe_s512k.txt") as f10:
+with open("output/pipe_s512k.txt") as f10:
     data10 = f10.read()
 
-with open("outputlatency/socket_s4.txt") as f1:
+with open("output/socket_s4.txt") as f1:
     data11 = f1.read()
-with open("outputlatency/socket_s16.txt") as f2:
+with open("output/socket_s16.txt") as f2:
     data12 = f2.read()
-with open("outputlatency/socket_s64.txt") as f3:
+with open("output/socket_s64.txt") as f3:
     data13 = f3.read()
-with open("outputlatency/socket_s256.txt") as f4:
+with open("output/socket_s256.txt") as f4:
     data14 = f4.read()
-with open("outputlatency/socket_s1024.txt") as f5:
+with open("output/socket_s1024.txt") as f5:
     data15 = f5.read()
-with open("outputlatency/socket_s4096.txt") as f6:
+with open("output/socket_s4096.txt") as f6:
     data16 = f6.read()
-with open("outputlatency/socket_s16k.txt") as f7:
+with open("output/socket_s16k.txt") as f7:
     data17 = f7.read()
-with open("outputlatency/socket_s64k.txt") as f8:
+with open("output/socket_s64k.txt") as f8:
     data18 = f8.read()
-with open("outputlatency/socket_s256k.txt") as f9:
+with open("output/socket_s256k.txt") as f9:
     data19 = f9.read()
-with open("outputlatency/socket_s512k.txt") as f10:
+with open("output/socket_s512k.txt") as f10:
     data20 = f10.read()
 
 
-with open("outputlatency/smemipc_s4.txt") as f1:
+with open("output/smemipc_s4.txt") as f1:
     data21 = f1.read()
-with open("outputlatency/smemipc_s16.txt") as f2:
+with open("output/smemipc_s16.txt") as f2:
     data22 = f2.read()
-with open("outputlatency/smemipc_s64.txt") as f3:
+with open("output/smemipc_s64.txt") as f3:
     data23 = f3.read()
-with open("outputlatency/smemipc_s256.txt") as f4:
+with open("output/smemipc_s256.txt") as f4:
     data24 = f4.read()
-with open("outputlatency/smemipc_s1024.txt") as f5:
+with open("output/smemipc_s1024.txt") as f5:
     data25 = f5.read()
-with open("outputlatency/smemipc_s4096.txt") as f6:
+with open("output/smemipc_s4096.txt") as f6:
     data26 = f6.read()
-with open("outputlatency/smemipc_s16k.txt") as f7:
+with open("output/smemipc_s16k.txt") as f7:
     data27 = f7.read()
-with open("outputlatency/smemipc_s64k.txt") as f8:
+with open("output/smemipc_s64k.txt") as f8:
     data28 = f8.read()
-with open("outputlatency/smemipc_s256k.txt") as f9:
+with open("output/smemipc_s256k.txt") as f9:
     data29 = f9.read()
-with open("outputlatency/smemipc_s512k.txt") as f10:
+with open("output/smemipc_s512k.txt") as f10:
     data30 = f10.read()
 
+data1 = data1[:-1]
+data2 = data2[:-1]
+data3 = data3[:-1]
+data4 = data4[:-1]
+data5 = data5[:-1]
+data6 = data6[:-1]
+data7 = data7[:-1]
+data8 = data8[:-1]
+data9 = data9[:-1]
+data10 = data10[:-1]
+
+
+data11 = data11[:-1]
+data12 = data12[:-1]
+data13 = data13[:-1]
+data14 = data14[:-1]
+data15 = data15[:-1]
+data16 = data16[:-1]
+data17 = data17[:-1]
+data18 = data18[:-1]
+data19 = data19[:-1]
+data20 = data20[:-1]
+
+
+data21 = data21[:-1]
+data22 = data22[:-1]
+data23 = data23[:-1]
+data24 = data24[:-1]
+data25 = data25[:-1]
+data26 = data26[:-1]
+data27 = data27[:-1]
+data28 = data28[:-1]
+data29 = data29[:-1]
+data30 = data30[:-1]
 
 data1 = data1.split('\n')
 data2 = data2.split('\n')
@@ -121,7 +155,7 @@ y.append(sum((y7))/len(y7))
 y.append(sum((y8))/len(y8))
 y.append(sum((y9))/len(y9))
 y.append(sum((y10))/len(y10))
-y = [x / 1000 for x in y]
+
 
 y1 = map(float, [row.split(' ')[0] for row in data11])
 y2 = map(float, [row.split(' ')[0] for row in data12])
@@ -144,7 +178,7 @@ z.append(sum((y7))/len(y7))
 z.append(sum((y8))/len(y8))
 z.append(sum((y9))/len(y9))
 z.append(sum((y10))/len(y10))
-z = [x / 1000 for x in z]
+
 
 y1 = map(float, [row.split(' ')[0] for row in data21])
 y2 = map(float, [row.split(' ')[0] for row in data22])
@@ -167,7 +201,7 @@ w.append(sum((y7))/len(y7))
 w.append(sum((y8))/len(y8))
 w.append(sum((y9))/len(y9))
 w.append(sum((y10))/len(y10))
-w = [x / 1000 for x in w]
+
 
 '''
 y.append(min(y1))
@@ -181,52 +215,28 @@ y.append(min(y8))
 y.append(min(y9))
 y.append(min(y10))
 '''
-x1 = ['4', '16', '64', '256', '1024', '4096', '16384']
-x2 = ['65536', '262144', '524288']
-fig2 = plt.figure()
+x = ['4', '16', '64', '256', '1024', '4096', '16384', '65536', '262144', '524288']
+fig = plt.figure()
 
-ax2 = fig2.add_subplot(111)
+ax1 = fig.add_subplot(111)
 
-ax2.set_title("Latency last")
-ax2.set_xlabel('Size of message')
-ax2.set_ylabel('Latency in us')
-y2=y[7:10]
-z2=z[7:10]
-w2=w[7:10]
-ax2.plot(x2,y2, 'r--', x2, z2, 'gs', x2, w2, 'b^')
-#ax1.plot(x,w, 'gs')
-
-print w2
-ax2.plot(x2, y2, c='r', label='pipe')
-ax2.plot(x2, z2, c='g', label='socket')
-ax2.plot(x2, w2, c='b', label='sharedmem')
-leg = ax2.legend()
-ax2.set_xscale('log', basex=2)
-ax2.legend(loc=2)
-
-fig1 = plt.figure()
-
-ax1 = fig1.add_subplot(111)
-
-ax1.set_title("Latency")
+ax1.set_title("Throughput")
 ax1.set_xlabel('Size of message')
-ax1.set_ylabel('Latency in us')
-y1=y[0:7]
-z1=z[0:7]
-w1=w[0:7]
-print w1
-ax1.plot(x1,y1, 'r--', x1, z1, 'gs', x1, w1, 'b^')
-#ax1.plot(x,w, 'gs')
+ax1.set_ylabel('Throughput in MB/s')
 
-ax1.plot(x1, y1, c='r', label='pipe')
-ax1.plot(x1, z1, c='g', label='socket')
-ax1.plot(x1, w1, c='b', label='sharedmem')
+ax1.plot(x,y, 'r--', x, z, 'bs', x, w, 'g^')
+#ax1.plot(x,w, 'gs')
+ax1.plot(x, y, c='r', label='pipe')
+ax1.plot(x, z, c='g', label='socket')
+ax1.plot(x, w, c='b', label='sharedmem')
+
+print(x)
+print(y)
+print(z)
+print(w)
+
 leg = ax1.legend()
 ax1.set_xscale('log', basex=2)
+
 ax1.legend(loc=2)
-
-my_xticks = ['4', '16', '64', '256', '1024', '4096', '16384']
-#plt.xticks(x1, my_xticks)
-
-#plt.xticks(np.arange(int(min(x1)), int(max(x1))+1, 1.0))
 plt.show()
