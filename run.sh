@@ -1,7 +1,7 @@
 #running the object files
-rm -rf output
+rm -rf output_tput
 
-mkdir output
+mkdir output_tput
 #./pipeipc > output/pipe_latency.txt
 #./socketipc > output/socket_latency.txt
 #./smemipc > output/smemipc_latency.txt
