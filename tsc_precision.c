@@ -1,5 +1,7 @@
 #define _GNU_SOURCE
+#if !defined(TSCTIMER)
 #define TSCTIMER
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

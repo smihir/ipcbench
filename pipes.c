@@ -55,7 +55,7 @@ void parent(int *fd, int *fd1, int size, int tput) {
         // TPUT test, we will receive atleast a 100MB of data
         int num_pkts = (100 * 1024 * 1024) / size;
         // avoid errors due to remainder
-        int tot_size = num_pkts * size;
+        ssize_t tot_size = num_pkts * size;
         ssize_t r = 0, ret;
 
         // naive receive...
@@ -115,6 +115,7 @@ void child(int *fd, int *fd1, int size, int tput) {
     } else {
         // TPUT test, send atleast a 100MB of data
         int num_pkts = (100 * 1024 * 1024) / size;
+        ssize_t tot_size = num_pkts * size;
         int i = 0;
         ssize_t ret;
         hwtimer_t tsc_t;
@@ -132,8 +133,8 @@ void child(int *fd, int *fd1, int size, int tput) {
             // calculate timings
         }
         stop_timer(&tsc_t);
-        ns_time=get_timer_ns(&tsc_t)/2;
-        printf("%lu \n", ns_time);
+        ns_time=get_timer_ns(&tsc_t);
+        printf("%f \n", (1000)*((float)tot_size/ns_time));
         if (ret == -1) {
             die("Child: Error in receiving ack");
         }

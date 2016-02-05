@@ -97,6 +97,7 @@ void child(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
     } else {
         // TPUT test, we will receive atleast a 100MB of data
         int num_pkts = (100 * 1024 * 1024) / size;
+        ssize_t tot_size = num_pkts * size;
         hwtimer_t tsct;
         uint64_t ns_time;
         init_timer(&tsct);
@@ -128,7 +129,7 @@ void child(struct shmem_map *pmap, struct shmem_map *pmap2, int tput, int size,
         pthread_mutex_unlock(&pmap2->mutex);
         stop_timer(&tsct);
         ns_time = get_timer_ns(&tsct);
-        printf("%lu \n", ns_time);
+        printf("%f \n", (1000)*((float)tot_size/ns_time));
     }
     free(buffer);
 }
