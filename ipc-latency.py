@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+'''
 with open("output/pipe_s4.txt") as f1:
     data1 = f1.read()
 with open("output/pipe_s16.txt") as f2:
@@ -43,7 +43,7 @@ with open("output/socket_s256k.txt") as f9:
 with open("output/socket_s512k.txt") as f10:
     data20 = f10.read()
 
-
+'''
 with open("output/smemipc_s4.txt") as f1:
     data21 = f1.read()
 with open("output/smemipc_s16.txt") as f2:
@@ -65,7 +65,7 @@ with open("output/smemipc_s256k.txt") as f9:
 with open("output/smemipc_s512k.txt") as f10:
     data30 = f10.read()
 
-
+'''
 data1 = data1.split('\n')
 data2 = data2.split('\n')
 data3 = data3.split('\n')
@@ -87,7 +87,7 @@ data17 = data17.split('\n')
 data18 = data18.split('\n')
 data19 = data19.split('\n')
 data20 = data20.split('\n')
-
+'''
 data21 = data21.split('\n')
 data22 = data22.split('\n')
 data23 = data23.split('\n')
@@ -99,7 +99,7 @@ data28 = data28.split('\n')
 data29 = data29.split('\n')
 data30 = data30.split('\n')
 
-
+'''
 y1 = map(int, [row.split(' ')[0] for row in data1])
 y2 = map(int, [row.split(' ')[0] for row in data2])
 y3 = map(int, [row.split(' ')[0] for row in data3])
@@ -143,7 +143,7 @@ z.append(sum((y7))/len(y7))
 z.append(sum((y8))/len(y8))
 z.append(sum((y9))/len(y9))
 z.append(sum((y10))/len(y10))
-
+'''
 
 y1 = map(int, [row.split(' ')[0] for row in data21])
 y2 = map(int, [row.split(' ')[0] for row in data22])
@@ -166,6 +166,7 @@ w.append(sum((y7))/len(y7))
 w.append(sum((y8))/len(y8))
 w.append(sum((y9))/len(y9))
 w.append(sum((y10))/len(y10))
+
 '''
 y.append(min(y1))
 y.append(min(y2))
@@ -183,18 +184,21 @@ fig = plt.figure()
 
 ax1 = fig.add_subplot(111)
 
-ax1.set_title("Latency for pipe IPC")
+ax1.set_title("Throughput")
 ax1.set_xlabel('Size of message')
-ax1.set_ylabel('Latency in ns')
+ax1.set_ylabel('Throughput in ns')
 
-ax1.plot(x,y, 'r--', x, z, 'bs', x, w, 'g^')
-ax1.plot(x, y, c='r', label='pipe')
-ax1.plot(x, z, c='g', label='socket')
-ax1.plot(x, w, c='b', label='sharedmem')
+#ax1.plot(x,y, 'r--', x, z, 'bs', x, w, 'g^')
+ax1.plot(x,w, 'gs')
+ax1.plot(x, w, c='r', label='sharedmem')
+#ax1.plot(x, z, c='g', label='socket')
+#ax1.plot(x, w, c='b', label='sharedmem')
+
 print(x)
-print(y)
-print(z)
-print(w)
+#print(y)
+#print(z)
+#print(w)
 
 leg = ax1.legend()
+ax1.set_xscale('log', basex=2)
 plt.show()
