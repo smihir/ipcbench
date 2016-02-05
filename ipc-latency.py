@@ -111,6 +111,17 @@ y8 = map(float, [row.split(' ')[0] for row in data8])
 y9 = map(float, [row.split(' ')[0] for row in data9])
 y10 = map(float, [row.split(' ')[0] for row in data10])
 y = []
+y.append(min(y1))
+y.append(min(y2))
+y.append(min(y3))
+y.append(min(y4))
+y.append(min(y5))
+y.append(min(y6))
+y.append(min(y7))
+y.append(min(y8))
+y.append(min(y9))
+y.append(min(y10))
+'''
 y.append(sum((y1))/len(y1))
 y.append(sum((y2))/len(y2))
 y.append(sum((y3))/len(y3))
@@ -121,6 +132,7 @@ y.append(sum((y7))/len(y7))
 y.append(sum((y8))/len(y8))
 y.append(sum((y9))/len(y9))
 y.append(sum((y10))/len(y10))
+'''
 y = [x / 1000 for x in y]
 
 y1 = map(float, [row.split(' ')[0] for row in data11])
@@ -134,6 +146,17 @@ y8 = map(float, [row.split(' ')[0] for row in data18])
 y9 = map(float, [row.split(' ')[0] for row in data19])
 y10 = map(float, [row.split(' ')[0] for row in data20])
 z = []
+z.append(min(y1))
+z.append(min(y2))
+z.append(min(y3))
+z.append(min(y4))
+z.append(min(y5))
+z.append(min(y6))
+z.append(min(y7))
+z.append(min(y8))
+z.append(min(y9))
+z.append(min(y10))
+'''
 z.append(sum((y1))/len(y1))
 z.append(sum((y2))/len(y2))
 z.append(sum((y3))/len(y3))
@@ -144,6 +167,7 @@ z.append(sum((y7))/len(y7))
 z.append(sum((y8))/len(y8))
 z.append(sum((y9))/len(y9))
 z.append(sum((y10))/len(y10))
+'''
 z = [x / 1000 for x in z]
 
 y1 = map(float, [row.split(' ')[0] for row in data21])
@@ -157,6 +181,17 @@ y8 = map(float, [row.split(' ')[0] for row in data28])
 y9 = map(float, [row.split(' ')[0] for row in data29])
 y10 = map(float, [row.split(' ')[0] for row in data30])
 w = []
+w.append(min(y1))
+w.append(min(y2))
+w.append(min(y3))
+w.append(min(y4))
+w.append(min(y5))
+w.append(min(y6))
+w.append(min(y7))
+w.append(min(y8))
+w.append(min(y9))
+w.append(min(y10))
+'''
 w.append(sum((y1))/len(y1))
 w.append(sum((y2))/len(y2))
 w.append(sum((y3))/len(y3))
@@ -167,20 +202,10 @@ w.append(sum((y7))/len(y7))
 w.append(sum((y8))/len(y8))
 w.append(sum((y9))/len(y9))
 w.append(sum((y10))/len(y10))
+'''
 w = [x / 1000 for x in w]
 
-'''
-y.append(min(y1))
-y.append(min(y2))
-y.append(min(y3))
-y.append(min(y4))
-y.append(min(y5))
-y.append(min(y6))
-y.append(min(y7))
-y.append(min(y8))
-y.append(min(y9))
-y.append(min(y10))
-'''
+x = ['4', '16', '64', '256', '1024', '4096', '16384', '65536', '262144', '524288']
 x1 = ['4', '16', '64', '256', '1024', '4096', '16384']
 x2 = ['65536', '262144', '524288']
 fig2 = plt.figure()
@@ -196,14 +221,31 @@ w2=w[7:10]
 ax2.plot(x2,y2, 'r--', x2, z2, 'gs', x2, w2, 'b^')
 #ax1.plot(x,w, 'gs')
 
-print w2
 ax2.plot(x2, y2, c='r', label='pipe')
 ax2.plot(x2, z2, c='g', label='socket')
 ax2.plot(x2, w2, c='b', label='sharedmem')
 leg = ax2.legend()
 ax2.set_xscale('log', basex=2)
 ax2.legend(loc=2)
+##################################################
+fig3 = plt.figure()
+ax3 = fig3.add_subplot(111)
 
+ax3.set_title("Latency last")
+ax3.set_xlabel('Size of message')
+ax3.set_ylabel('Latency in us')
+
+ax3.plot(x,y, 'r--', x, z, 'gs', x, w, 'b^')
+#ax1.plot(x,w, 'gs')
+
+ax3.plot(x, y, c='r', label='pipe')
+ax3.plot(x, z, c='g', label='socket')
+ax3.plot(x, w, c='b', label='sharedmem')
+leg = ax3.legend()
+ax3.set_xscale('log', basex=2)
+ax3.legend(loc=2)
+
+##################################################
 fig1 = plt.figure()
 
 ax1 = fig1.add_subplot(111)
@@ -214,9 +256,7 @@ ax1.set_ylabel('Latency in us')
 y1=y[0:7]
 z1=z[0:7]
 w1=w[0:7]
-print w1
 ax1.plot(x1,y1, 'r--', x1, z1, 'gs', x1, w1, 'b^')
-#ax1.plot(x,w, 'gs')
 
 ax1.plot(x1, y1, c='r', label='pipe')
 ax1.plot(x1, z1, c='g', label='socket')

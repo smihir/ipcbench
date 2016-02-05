@@ -267,7 +267,6 @@ print(w)
 
 leg = ax1.legend()
 ax1.set_xscale('log', basex=2)
-
 xlabels = ['4', '16', '64', '256', '1KB', '4KB', '16KB', '64KB', '256KB', '512KB']
 labels = [item.get_text() for item in ax1.get_xticklabels()]
 print len(labels)
