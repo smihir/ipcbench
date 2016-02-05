@@ -13,12 +13,12 @@
 
 void set_affinity(int cpuid){
     cpu_set_t set;
+
     CPU_ZERO(&set);
     CPU_SET(cpuid, &set);
 
     if (sched_setaffinity(getpid(), sizeof(set), &set) == -1)
         perror("sched_affinity");
-
 }
 
 uint64_t mean(uint64_t *v, int size) {
@@ -70,7 +70,11 @@ int main()
         start_timer(&tsct);
         sleep(1);
         stop_timer(&tsct);
-        timetsc[i] = get_timer_ns(&tsct) - 1000000000;
+        timetsc[i] = get_timer_ns(&tsct);
+        if (timetsc[i] < 1000000000)
+            timetsc[i] = 1000000000 - timetsc[i];
+        else
+            timetsc[i] -= 1000000000;
     }
 
     meanval = mean(timetsc, MAX_RUNS);
