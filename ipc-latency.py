@@ -215,7 +215,7 @@ fig2 = plt.figure()
 
 ax2 = fig2.add_subplot(111)
 
-ax2.set_title("Latency last")
+ax2.set_title("Latency")
 ax2.set_xlabel('Message Size')
 ax2.set_ylabel('Latency in us')
 y2=y[7:10]
@@ -234,7 +234,7 @@ ax2.legend(loc=2)
 fig3 = plt.figure()
 ax3 = fig3.add_subplot(111)
 
-ax3.set_title("Latency last")
+ax3.set_title("Latency")
 ax3.set_xlabel('Message Size')
 ax3.set_ylabel('Latency in us')
 
