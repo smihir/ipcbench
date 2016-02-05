@@ -239,6 +239,7 @@ void child(int port, unsigned long int bufsize, int tput) {
     } else {
         // TPUT test, send atleast a 100MB of data
         int num_pkts = (100 * 1024 * 1024) / bufsize;
+        ssize_t tot_size = num_pkts * bufsize;
         int i = 0;
         ssize_t ret;
         hwtimer_t tsct;
@@ -259,7 +260,7 @@ void child(int port, unsigned long int bufsize, int tput) {
         }
         stop_timer(&tsct);
         ns_time = get_timer_ns(&tsct);
-        printf("%lu \n", ns_time);
+        printf("%f \n", (1000)*((float)tot_size/ns_time));
         if (ret == -1) {
             perror("Child: Error in receiving packets");
         } else if (ret == 0) {
