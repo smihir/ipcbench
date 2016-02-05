@@ -203,6 +203,9 @@ w.append(sum((y8))/len(y8))
 w.append(sum((y9))/len(y9))
 w.append(sum((y10))/len(y10))
 '''
+
+xlabels = ['0', '4', '16', '64', '256', '1KB', '4KB', '16KB', '64KB', '256KB', '512KB']
+
 w = [x / 1000 for x in w]
 
 x = ['4', '16', '64', '256', '1024', '4096', '16384', '65536', '262144', '524288']
@@ -213,12 +216,12 @@ fig2 = plt.figure()
 ax2 = fig2.add_subplot(111)
 
 ax2.set_title("Latency last")
-ax2.set_xlabel('Size of message')
+ax2.set_xlabel('Message Size')
 ax2.set_ylabel('Latency in us')
 y2=y[7:10]
 z2=z[7:10]
 w2=w[7:10]
-ax2.plot(x2,y2, 'r--', x2, z2, 'gs', x2, w2, 'b^')
+ax2.plot(x2,y2, 'ro', x2, z2, 'gs', x2, w2, 'b^')
 #ax1.plot(x,w, 'gs')
 
 ax2.plot(x2, y2, c='r', label='pipe')
@@ -232,10 +235,10 @@ fig3 = plt.figure()
 ax3 = fig3.add_subplot(111)
 
 ax3.set_title("Latency last")
-ax3.set_xlabel('Size of message')
+ax3.set_xlabel('Message Size')
 ax3.set_ylabel('Latency in us')
 
-ax3.plot(x,y, 'r--', x, z, 'gs', x, w, 'b^')
+ax3.plot(x,y, 'ro', x, z, 'gs', x, w, 'b^')
 #ax1.plot(x,w, 'gs')
 
 ax3.plot(x, y, c='r', label='pipe')
@@ -251,12 +254,12 @@ fig1 = plt.figure()
 ax1 = fig1.add_subplot(111)
 
 ax1.set_title("Latency")
-ax1.set_xlabel('Size of message')
+ax1.set_xlabel('Message Size')
 ax1.set_ylabel('Latency in us')
 y1=y[0:7]
 z1=z[0:7]
 w1=w[0:7]
-ax1.plot(x1,y1, 'r--', x1, z1, 'gs', x1, w1, 'b^')
+ax1.plot(x1,y1, 'ro', x1, z1, 'gs', x1, w1, 'b^')
 
 ax1.plot(x1, y1, c='r', label='pipe')
 ax1.plot(x1, z1, c='g', label='socket')
@@ -268,5 +271,8 @@ ax1.legend(loc=2)
 my_xticks = ['4', '16', '64', '256', '1024', '4096', '16384']
 #plt.xticks(x1, my_xticks)
 
+#ax1.set_xticklabels(xlabels, rotation='vertical')
+ax2.set_xticklabels(xlabels, rotation='vertical')
+ax3.set_xticklabels(xlabels, rotation='vertical')
 #plt.xticks(np.arange(int(min(x1)), int(max(x1))+1, 1.0))
 plt.show()
