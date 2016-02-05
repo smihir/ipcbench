@@ -58,4 +58,4 @@ cscope:
 
 .PHONY: clean
 clean:
-	rm -rf *.o socketipc smemipc pipeipc tsc_precision raw_precision
+	rm -rf *.o socketipc smemipc pipeipc tsc_precision raw_precision clk_precision
