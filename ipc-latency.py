@@ -275,4 +275,5 @@ my_xticks = ['4', '16', '64', '256', '1024', '4096', '16384']
 ax2.set_xticklabels(xlabels, rotation='vertical')
 ax3.set_xticklabels(xlabels, rotation='vertical')
 #plt.xticks(np.arange(int(min(x1)), int(max(x1))+1, 1.0))
+plt.tick_params(axis='both', which='major', labelsize=14)
 plt.show()
