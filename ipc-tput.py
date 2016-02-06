@@ -220,13 +220,8 @@ ax1.plot(x, w, c='b', label='sharedmem')
 leg = ax1.legend()
 ax1.set_xscale('log', basex=2)
 xlabels = ['0', '4', '16', '64', '256', '1KB', '4KB', '16KB', '64KB', '256KB', '512KB']
-labels = [item.get_text() for item in ax1.get_xticklabels()]
-print len(labels)
-print len(xlabels)
-print(labels)
-print(xlabels)
-print len(xlabels)
 ax1.set_xticklabels(xlabels, rotation='vertical')
+plt.tick_params(axis='both', which='major', labelsize=14)
 
 ax1.legend(loc=2)
 plt.show()
