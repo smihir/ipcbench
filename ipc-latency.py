@@ -276,4 +276,35 @@ ax2.set_xticklabels(xlabels, rotation='vertical')
 ax3.set_xticklabels(xlabels, rotation='vertical')
 #plt.xticks(np.arange(int(min(x1)), int(max(x1))+1, 1.0))
 plt.tick_params(axis='both', which='major', labelsize=14)
+
+##############################################
+
+#x_bar = [4, 16, 64, 256, 1024, 4096, 16384, 65536, 262144, 524288]
+#BAR GRAPH
+x_bar=np.arange(10)
+
+fig4 = plt.figure()
+ax4 = fig4.add_subplot(111)
+ax4.set_title("Latency")
+ax4.set_xlabel('Message Size')
+ax4.set_ylabel('Latency in logarithmic scale of us')
+wd = 0.15
+#width = [0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35]
+y = [float(x) for x in y]
+z = [float(x) for x in z]
+w = [float(x) for x in w]
+
+rects1 = ax4.bar(x_bar, y, wd, color='r')
+rects2 = ax4.bar(x_bar+wd, z, wd, color='g')
+rects3 = ax4.bar(x_bar+wd+wd, w, wd, color='b')
+
+xlabels2 = ['4', '16', '64', '256', '1KB', '4KB', '16KB', '64KB', '256KB', '512KB']
+plt.xticks(x_bar + wd/2., xlabels)
+
+ax4.set_xticklabels(xlabels2, rotation='vertical')
+ax4.set_yscale('log', basex=2)
+ax4.legend((rects1[0], rects2[0], rects3[0]), ('Pipe', 'Socket', 'Sharedmem'), loc = 'upper left')
+
+
+##############################################
 plt.show()

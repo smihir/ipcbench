@@ -224,4 +224,31 @@ ax1.set_xticklabels(xlabels, rotation='vertical')
 plt.tick_params(axis='both', which='major', labelsize=14)
 
 ax1.legend(loc=2)
+
+
+x_bar=np.arange(10)
+
+fig4 = plt.figure()
+ax4 = fig4.add_subplot(111)
+ax4.set_title("Throughput")
+ax4.set_xlabel('Message Size')
+ax4.set_ylabel('Througput in logarithmic scale of MB/s')
+wd = 0.15
+#width = [0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35]
+y = [float(x) for x in y]
+z = [float(x) for x in z]
+w = [float(x) for x in w]
+
+rects1 = ax4.bar(x_bar, y, wd, color='r')
+rects2 = ax4.bar(x_bar+wd, z, wd, color='g')
+rects3 = ax4.bar(x_bar+wd+wd, w, wd, color='b')
+
+xlabels2 = ['4', '16', '64', '256', '1KB', '4KB', '16KB', '64KB', '256KB', '512KB']
+plt.xticks(x_bar + wd/2., xlabels)
+
+ax4.set_xticklabels(xlabels2, rotation='vertical')
+ax4.set_yscale('log', basex=2)
+ax4.legend(loc=4)
+ax4.legend((rects1[0], rects2[0], rects3[0]), ('Pipe', 'Socket', 'Sharedmem'), loc = 'upper left')
+
 plt.show()
